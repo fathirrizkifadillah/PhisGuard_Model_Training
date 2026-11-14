@@ -64,6 +64,8 @@ def audit_notebook(path_str):
 if __name__ == '__main__':
     ok_url = audit_notebook('url.ipynb')
     ok_email = audit_notebook('email.ipynb')
+    ok_ext = audit_notebook('external_testing.ipynb')
     print("\n---------------- FINAL VERIFICATION SUMMARY ----------------")
-    print(f"url.ipynb   : {'PASSED' if ok_url else 'FAILED'}")
-    print(f"email.ipynb : {'PASSED' if ok_email else 'FAILED'}")
+    print(f"url.ipynb              : {'PASSED' if ok_url else 'FAILED'}")
+    print(f"email.ipynb            : {'PASSED' if ok_email else 'FAILED'}")
+    print(f"external_testing.ipynb : {'PASSED' if ok_ext else 'FAILED'}")

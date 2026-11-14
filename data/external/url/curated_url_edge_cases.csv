@@ -1,0 +1,21 @@
+URL,is_phishing,category,notes
+https://paypa1-security-verification.com/login,1,Typosquatting Phish,Angka 1 menggantikan huruf l pada paypal
+http://apple-id-support-icloud.account-security.top/auth,1,Subdomain Brand Spoof,Eksploitasi subdomain berlapis dengan TLD .top
+http://192.168.100.55/secure/banking/bca/login.php,1,IP-Based Phish,Menggunakan IP address langsung tanpa domain
+http://203.0.113.195:8080/portal/microsoft/office365,1,IP with Custom Port,IP address dengan port non-standar
+https://storage.googleapis.com/phishing-bucket-azure/login.html,1,Cloud Storage Abuse,Hosting phishing di Google Cloud Storage resmi
+https://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi.ipfs.dweb.link/,1,IPFS Decentralized Phish,URL desentralisasi IPFS berkarakter acak panjang
+https://netflix-account-reactivation-billing.info/signin,1,Credential Harvesting,Kombinasi kata pemicu pada TLD murah .info
+http://secure-login-wellsfargo.com.update-profile.xyz/auth,1,Reverse Subdomain Spoof,Domain penipu di belakang domain resmi palsu
+https://faceb00k-security-checkpoint.org/confirm.php?user=vict&ref=sec,1,Number Substitution,Substitusi huruf o dengan angka 0 ganda
+http://download-security-patch-kb5001.update.msi,1,Malicious Extension,URL berakhiran file installer berbahaya .msi
+https://www.google.com/search?q=machine+learning+cybersecurity&oq=ml&sourceid=chrome&ie=UTF-8,0,Legitimate Search Query,Banyak parameter query pada search engine resmi
+https://drive.google.com/drive/folders/1aBcDeFgHiJkLmNoPqRsTuVwXyZ123456?usp=sharing,0,Legitimate Cloud Sharing,Link share Google Drive dengan token panjang acak
+https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/ensemble/_forest.py,0,Legitimate Developer Code,Deep path repository kode open source
+https://s3.ap-southeast-1.amazonaws.com/my-corp-bucket/reports/2026/annual-financial-audit.pdf,0,Legitimate AWS S3 Asset,Subdomain dan path panjang resmi cloud storage
+https://portal.kemenkeu.go.id/layanan/pajak/surat-pemberitahuan-tahunan,0,Legitimate Government Portal,Domain pemerintah resmi dengan TLD .go.id
+https://id.wikipedia.org/wiki/Kecerdasan_buatan#Pembelajaran_mesin,0,Legitimate Wiki Anchor,URL ensiklopedia dengan anchor hashtag dan subdomain bahasa
+https://stackoverflow.com/questions/43162506/undefined-reference-to-vtable-when-building-with-cmake,0,Legitimate Tech Community,Banyak tanda hubung pada slug pertanyaan resmi
+https://www.microsoft.com/en-us/security/business/threat-intelligence,0,Legitimate Corporate Security,Subdirektori multi-bahasa resmi vendor global
+https://t.co/abcXYZ1234,0,Legitimate Short URL,URL pendek resmi Twitter/X
+https://arxiv.org/abs/1706.03762,0,Legitimate Academic Paper,Repositori jurnal ilmiah dengan ID numerik
