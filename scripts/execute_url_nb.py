@@ -1,8 +1,9 @@
 import nbformat
 from nbclient import NotebookClient
-import sys
+from pathlib import Path
 
-def execute_nb(path):
+def execute_nb(path_str):
+    path = Path(path_str).resolve()
     print(f"Executing {path}...")
     with open(path, 'r', encoding='utf-8') as f:
         nb = nbformat.read(f, as_version=4)
