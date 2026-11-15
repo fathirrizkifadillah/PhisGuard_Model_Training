@@ -66,3 +66,29 @@ Protokol pencatatan eksperimen (*experiment journal*) mengikuti kaidah ilmiah `m
 - **Subgroup Slice Disparity Terbukti**: Phishing HTTP terdeteksi 100.00% (138/138), sedangkan phishing HTTPS terdeteksi 87.04% (141/162). Terdapat gap disparitas sebesar **12.96%** yang membuktikan hipotesis bias protokol HTTPS.
 - **URL Curated Edge Cases**: Akurasi **70.00%** (14/20). Sukses mendeteksi typosquatting (`paypa1`), IP-based attacks, cloud bucket abuse (`storage.googleapis.com`), dan reverse subdomain spoof. Terjadi False Positive pada URL sah berparameter query panjang (Google search, AWS S3 signed asset, ArXiv paper).
 - **Artefak Dihasilkan**: `external_testing.ipynb`, folder data `data/external/`, plot visualisasi di `plots/external_eval/`.
+
+
+---
+
+### 2026-11-15 12:25 — EXP-003: Bilingual Email Feature Pipeline & Language Slice Disparity Mitigation
+
+**Status**: COMPLETED
+
+**Hypothesis**:
+Model email sebelumnya dilatih murni pada korpus bahasa Inggris, menyebabkan bencana Out-of-Vocabulary (OOV) ketika diuji dengan teks berbahasa Indonesia (hanya 0 - 3 token yang cocok). Karena penyesuaian bobot kelas `class_weight='balanced'`, vektor kosong ($x = \vec{0}$) diprediksi sebagai Phishing berdasarkan nilai intercept ($P \approx 0.74$). Dengan mengintegrasikan korpus dwibahasa terkurasi (Indonesian threat vectors: BCA, Mandiri Livin, BRImo, Ditjen Pajak, DANA, Shopee, APK tilang vs Indonesian safe office memos) ke dalam pipeline TF-IDF N-Gram (35.000 fitur dwibahasa), false negative pada phishing Indonesia diproyeksikan turun menjadi 0% dan representasi makna lokal meningkat tanpa mengorbankan akurasi bahasa Inggris.
+
+**Change**:
+- Mengintegrasikan pipeline dwibahasa ke dalam `notebook/email.ipynb` (Chapter 7: Ekstensi Model Dwibahasa).
+- Ekstraksi korpus dwibahasa seimbang (English 17.510 + Indonesian curated threat & safe corpus)
+- Vektorizer TF-IDF dwibahasa (unigram + bigram, max_features=35.000, sublinear_tf=True)
+- Melatih model Calibrated Linear SVM dwibahasa (`models/email/bilingual_svm_email.joblib`)
+
+**Config**:
+- Model: `CalibratedClassifierCV(LinearSVC(C=1.0, class_weight='balanced'), method='sigmoid', cv=3)`
+- Vocabulary: 35.000 fitur n-gram dwibahasa
+
+**Outcome**:
+- **Deteksi Phishing Indonesia (Unseen)**: False Negative turun dari 10% menjadi **0% (100% phishing Indonesia tertangkap)**.
+- **SiCepat APK Phishing**: Pada model lama lolos (Prob=0.2246), pada model dwibahasa sukses dicegat (Prob=0.6717).
+- **Akurasi Keseluruhan Bahasa Indonesia**: Meningkat dari 60% menjadi 70% pada kasus uji independen tanpa mengorbankan metrik pada bahasa Inggris (tetap > 98.8%).
+- **Artefak**: `notebook/email.ipynb` (Chapter 7), model `bilingual_svm_email.joblib`, plot `06_bilingual_indonesian_confusion_matrix.png` dan `07_bilingual_top_coefficients.png`.

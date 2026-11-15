@@ -60,13 +60,15 @@ PhisGuad_training/
 ├── models/
 │   ├── email/
 │   │   ├── lr_baseline_email.joblib          <- Model baseline Logistic Regression
-│   │   ├── svm_production_email.joblib       <- Model produksi Calibrated Linear SVM
-│   │   └── tfidf_vectorizer_email.joblib     <- Objek vektorizer TF-IDF (25.000 n-gram)
+│   │   ├── svm_production_email.joblib       <- Model produksi Calibrated Linear SVM (Inggris)
+│   │   ├── tfidf_vectorizer_email.joblib     <- Objek vektorizer TF-IDF (25.000 n-gram)
+│   │   ├── bilingual_svm_email.joblib        <- Model produksi Calibrated Linear SVM Dwibahasa (ID + EN)
+│   │   └── bilingual_tfidf_vectorizer_email.joblib <- Vektorizer TF-IDF Dwibahasa (35.000 n-gram)
 │   └── url/
 │       ├── rf_baseline_url.joblib            <- Model baseline Random Forest
 │       └── xgb_production_url.joblib         <- Model produksi XGBoost Classifier
 ├── notebook/
-│   ├── email.ipynb                           <- Notebook end-to-end modul Email (Ch 1 - 6)
+│   ├── email.ipynb                           <- Notebook end-to-end modul Email (Ch 1 - 6 Inggris & Ch 7 Adaptasi Dwibahasa Indonesia)
 │   ├── external_testing.ipynb                <- Notebook stress-test OOD & threat modeling (Ch 1 - 7)
 │   └── url.ipynb                             <- Notebook end-to-end modul URL (Ch 1 - 6)
 ├── plots/
@@ -119,6 +121,7 @@ Seluruh notebook tersimpan di folder `notebook/` dan dirancang independen (*self
   * Chapter 4 : Text Vectorization & NLP Feature Pipeline (TF-IDF N-grams)
   * Chapter 5 : Model Training & Baseline Comparison (Logistic Regression vs Calibrated Linear SVM)
   * Chapter 6 : Model Evaluation, Diagnostic & Error Analysis
+  * Chapter 7 : Ekstensi Model Dwibahasa (Bilingual Indonesian-English Adaptation & OOV Mitigation)
 - **`notebook/external_testing.ipynb`**:
   * Chapter 1 : Threat Modeling & OOD Evaluation Protocol
   * Chapter 2 : Ingestion of External Datasets
