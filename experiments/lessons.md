@@ -20,3 +20,17 @@ Dokumen ini mendokumentasikan prinsip-prinsip desain, kegagalan umum (*failure m
   * Probabilitas > 0.85: Pemblokiran keras (*Hard Block / Quarantine*).
   * Probabilitas 0.45 - 0.85: Peringatan keamanan (*Inject Warning Banner*) dan ekstraksi URL untuk inspeksi sekunder.
   * Probabilitas < 0.45: Lolos ke kotak masuk (*Pass to Inbox*).
+
+### Aturan 4: Disparitas Multi-Part TLD & Sanitasi Ekstraksi Fitur (Kasus ccSLD `.ac.id` / `.go.id`)
+- **Observasi**: Korpus pelatihan tabular publik (seperti Mendeley LegitPhish) hampir seluruhnya didominasi oleh domain generik tingkat satu (*single-part TLD* seperti `.com`, `.org`, `.net`). Ketika berhadapan dengan nama domain nasional bertingkat (*country-code Second-Level Domain* / ccSLD seperti `.ac.id`, `.go.id`, `.sch.id`), pemisahan titik naif (`host.split('.')`) secara keliru mengekstrak nama institusi sebagai *subdomain* dan menganggap nama domain hanya berpanjang 2 karakter (misal: `ac`).
+- **Dampak**: Model tabular (XGBoost) mengalami bias artefak leksikal dan menandai portal resmi akademik/pemerintah (seperti `sintesys.unsil.ac.id`) sebagai *False Positive* akibat metrik `domain_name_length` yang sangat pendek (2 huruf) dan `subdomain_count` yang terhitung ganda.
+- **Aturan**:
+  * Tahap pra-pemrosesan ekstraksi fitur inferensi wajib menggunakan dekomposisi berbasis hirarki registrasi domain (*multi-part ccTLD mapping*) agar nama institusi (`unsil`) diekstrak sebagai domain utama yang sah (panjang = 5) dan jumlah subdomain terhitung akurat (`sintesys` = 1).
+  * Validasi regulasi legalitas registrar (seperti pengawasan PANDI pada domain institusional `.ac.id` dan `.go.id`) harus diintegrasikan pada lapisan rekonsiliasi pertahanan hibrida (*Defensive AI Architecture*) guna mencegah terjadinya *false positive* pada portal layanan publik/akademik terdaftar.
+
+### Aturan 5: Subdomain Brand Spoofing vs Root Domain Ownership
+- **Observasi**: Penyerang siber modern sering kali mendaftarkan domain asing berbiaya murah (misal: `myonlineservicecanada.com`), lalu memasang nama entitas resmi sebagai *subdomain* (misal: `optus.myonlineservicecanada.com`) serta melengkapinya dengan sertifikat SSL/HTTPS gratis.
+- **Dampak**: Penilai manusia maupun model bahasa besar (LLM) dapat tertipu oleh keberadaan nama merek di subdomain dan protokol HTTPS jika tidak memisahkan kepemilikan domain utama (*Root Domain*) dari subdomain.
+- **Aturan**:
+  * Analisis leksikal wajib memisahkan dan membandingkan *subdomain* terhadap *root domain* untuk mendeteksi anomali peniruan entitas (*Brand Impersonation*).
+  * Sistem inferensi wajib menyertakan inspeksi konten web langsung (*Live Web Content Inspection*) untuk mendeteksi respons pemblokiran WAF (*Web Application Firewall*, misal: `Suspected Phishing | Cloudflare`) dan indikasi formulir pengumpulan kredensial secara independen.

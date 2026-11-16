@@ -92,3 +92,40 @@ Model email sebelumnya dilatih murni pada korpus bahasa Inggris, menyebabkan ben
 - **SiCepat APK Phishing**: Pada model lama lolos (Prob=0.2246), pada model dwibahasa sukses dicegat (Prob=0.6717).
 - **Akurasi Keseluruhan Bahasa Indonesia**: Meningkat dari 60% menjadi 70% pada kasus uji independen tanpa mengorbankan metrik pada bahasa Inggris (tetap > 98.8%).
 - **Artefak**: `notebook/email.ipynb` (Chapter 7), model `bilingual_svm_email.joblib`, plot `06_bilingual_indonesian_confusion_matrix.png` dan `07_bilingual_top_coefficients.png`.
+
+---
+
+### 2026-11-16 13:10 — EXP-004: In-The-Wild Multi-Part TLD (.ac.id) & Subdomain Brand Spoofing Hybrid Reconciliation
+
+**Status**: COMPLETED
+
+**Hypothesis**:
+1. **Multi-Part TLD Representation Bias (The ccSLD Trap)**:
+   Pada dataset acuan LegitPhish, seluruh sampel menggunakan domain tingkat satu (*single-part TLD* seperti `.com`). Pada URL institusi lokal Indonesia bertingkat dua (*multi-part ccSLD* seperti `sintesys.unsil.ac.id`), ekstraksi fitur naif membelah domain pada titik terakhir sehingga mengekstrak `domain_name = 'ac'` (panjang 2 huruf) dan `subdomain_count = 2`. Hal ini memicu *False Positive* pada model XGBoost ($P_{phish} = 0.556$). Dengan menerapkan pemetaan hirarki multi-part TLD (`.ac.id`, `.go.id`) dan validasi domain institusional PANDI, probabilitas phishing diproyeksikan turun ke $< 0.10$ (**Legitimate**).
+2. **Subdomain Brand Impersonation vs Root Domain**:
+   Penyerang sering menggunakan taktik Subdomain Spoofing (`https://optus.myonlineservicecanada.com/`) dengan sertifikat HTTPS gratis. Analisis teks sederhana tanpa inspeksi kepemilikan root domain dan live web content dapat mengelabui analis LLM. Dengan menambahkan ekstraksi terpisah *Subdomain vs Root Domain* serta *Live Web Content Inspection* (HTTP status & page title), sistem hibrida diproyeksikan mencapai konsensus mutlak (**Sepakat — Indikasi Phishing Kuat**).
+
+**Change**:
+- Menerapkan pemetaan hirarki multi-part TLD (`TWO_PART_TLDS` dan `INSTITUTIONAL_SUFFIXES`) pada fungsi ekstraksi fitur leksikal.
+- Menambahkan modul `inspect_live_url` untuk inspeksi konten web langsung (HTTP GET, title extraction, WAF detection).
+- Menghubungkan metadata inspeksi langsung dan peringatan *Brand Spoofing* ke dalam *Evidence Bundle* penilai Tier-2 Qwen 2.5 7B.
+- Mengintegrasikan matriks rekonsiliasi Bab 10 untuk menangani kasus batas institusional resmi.
+
+**Config**:
+- Model Inferensi: `xgb_production_url.joblib` (17 fitur tabular tanpa retrain)
+- Verifier Tier-2: Qwen 2.5 7B via Ollama API
+- Target Uji Nyata Lapangan:
+  * Kasus 1 (Legitimate Portal): `https://sintesys.unsil.ac.id/` (Sistem Informasi Akademik Universitas Siliwangi)
+  * Kasus 2 (Active Threat PhishTank #956080): `https://optus.myonlineservicecanada.com/` (Peniruan Brand Optus via Subdomain)
+
+**Outcome**:
+- **Kasus 1 (`sintesys.unsil.ac.id`)**:
+  * Sebelum perbaikan: Terdeteksi Phishing (ML 55.6%, status: Tidak Sepakat / False Positive).
+  * Setelah perbaikan: Terdeteksi **LEGITIMATE** (Keyakinan ML 95.0%, Qwen Verifier: Legitimate).
+  * Status Rekonsiliasi: **Sepakat — Tidak Ditemukan Indikator Kuat**.
+  * Eliminasi *False Positive*: Sanitasi panjang domain `unsil` (5 karakter) dan validasi registrasi resmi PANDI berhasil menetralkan bias representasi ccSLD tanpa perlu melatih ulang model.
+- **Kasus 2 (`optus.myonlineservicecanada.com`)**:
+  * Sebelum perbaikan: ML mendeteksi phishing (74.6%), namun Qwen tertipu oleh sertifikat HTTPS (Second Verdict: Legitimate).
+  * Setelah perbaikan: Live inspection berhasil menangkap blokir Cloudflare (`HTTP 403` dengan judul `Suspected Phishing | Cloudflare`) dan alarm peniruan merek `OPTUS` pada root domain asing `myonlineservicecanada.com`.
+  * Status Rekonsiliasi: **Sepakat — Indikasi Phishing Kuat** (Kedua model sepakat 100% memvonis ancaman).
+- **Artefak**: Update inferensi pada `PhisLess/ml_engine.py`, dokumentasi kaidah empiris pada `PhisGuad_training/experiments/lessons.md` (Aturan 4 & 5).
