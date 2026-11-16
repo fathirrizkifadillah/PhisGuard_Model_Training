@@ -129,3 +129,21 @@ Model email sebelumnya dilatih murni pada korpus bahasa Inggris, menyebabkan ben
   * Setelah perbaikan: Live inspection berhasil menangkap blokir Cloudflare (`HTTP 403` dengan judul `Suspected Phishing | Cloudflare`) dan alarm peniruan merek `OPTUS` pada root domain asing `myonlineservicecanada.com`.
   * Status Rekonsiliasi: **Sepakat — Indikasi Phishing Kuat** (Kedua model sepakat 100% memvonis ancaman).
 - **Artefak**: Update inferensi pada `PhisLess/ml_engine.py`, dokumentasi kaidah empiris pada `PhisGuad_training/experiments/lessons.md` (Aturan 4 & 5).
+
+---
+
+## [Sesi 8: 16 November 2026] Retraining Model Dwibahasa & Kalibrasi Probabilitas Vektor Sparse
+- **Fokus**: Mengatasi Sparse Vector Collapse & False Positive pada Email Resmi Indonesia (Google Play ToS Update).
+- **Akar Masalah**: Model sebelumnya hanya memiliki 50 sampel Indonesia vs 17.510 sampel Inggris (0.28% rasio). Teks ToS resmi mengalami 95% OOV dan intercept positif memicu probabilitas phish 78.7%.
+- **Tindakan**:
+  1. Membangun dataset dwibahasa komprehensif `bilingual_email_dataset_v2.csv` (17.945 baris, 435 sampel Indonesia terkurasi dan teraugmentasi).
+  2. Melatih ulang `TfidfVectorizer(ngram_range=(1,2), sublinear_tf=True, max_features=40000)`.
+  3. Menguji 3 model: MultinomialNB (97.49%), Logistic Regression (97.97%), dan Calibrated Linear SVM (98.30%, ROC-AUC 0.9988).
+  4. Subgroup Slice Analysis pada 103 sampel uji Indonesia holdout: Akurasi 100%, F1 100%, False Positive Rate 0.00%.
+  5. Uji Stres OOD 100% Lulus (Email ToS Google Play: Prob Phish 0.0061 / 99.4% Legitimate).
+- **Artefak**: 
+  - `data/email/processed/bilingual_email_dataset_v2.csv`
+  - `experiments/build_bilingual_dataset.py`
+  - `experiments/train_and_evaluate_bilingual.py`
+  - `models/email/bilingual_tfidf_vectorizer_email.joblib`
+  - `models/email/bilingual_svm_email.joblib` (disinkronkan ke `PhisLess/models/email/`).

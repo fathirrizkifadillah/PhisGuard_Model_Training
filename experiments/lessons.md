@@ -34,3 +34,11 @@ Dokumen ini mendokumentasikan prinsip-prinsip desain, kegagalan umum (*failure m
 - **Aturan**:
   * Analisis leksikal wajib memisahkan dan membandingkan *subdomain* terhadap *root domain* untuk mendeteksi anomali peniruan entitas (*Brand Impersonation*).
   * Sistem inferensi wajib menyertakan inspeksi konten web langsung (*Live Web Content Inspection*) untuk mendeteksi respons pemblokiran WAF (*Web Application Firewall*, misal: `Suspected Phishing | Cloudflare`) dan indikasi formulir pengumpulan kredensial secara independen.
+
+### Aturan 6: Mitigasi Sparse Vector Collapse & Bias Intercept pada Domain-Shift Bahasa Alami (Dwibahasa)
+- **Observasi**: Model Linear SVM yang dilatih dengan 99.7% korpus bahasa Inggris dan hanya 0.3% sampel bahasa Indonesia mengalami keruntuhan vektor (*sparse vector collapse*) ketika memproses teks bahasa Indonesia formal di luar kosakata (*Out-Of-Vocabulary* / OOV).
+- **Dampak**: Vektor fitur TF-IDF runtuh menjadi $\vec{x} \approx \vec{0}$. Akibat nilai bias/intercept positif model hasil pelatihan ($b > 0$), fungsi sigmoid Platt Scaling (`CalibratedClassifierCV`) secara keliru memetakan input non-bahasa Inggris ke probabilitas phishing tinggi (~78%), menimbulkan *False Positive* fatal pada email pengumuman resmi seperti Google Play Terms of Service update.
+- **Aturan**:
+  1. Penyeimbangan representasi korpus dwibahasa (Inggris & Indonesia) dalam matriks fitur TF-IDF dengan ekspansi kosakata formal (kebijakan layanan, pengumuman akademik, komunikasi korporat) dan variasi lure penipuan lokal (perbankan, kurir APK, tilang ETLE).
+  2. Penerapan sublinear TF scaling ($1 + \log(TF)$) dan regularisasi parameter SVM terkalibrasi (`CalibratedClassifierCV` dengan stratifikasi 5-fold) untuk memastikan probabilitas netral/legitimate pada teks informatif.
+  3. Integrasi ekstraksi tautan mendalam (*Deep Embedded Link Inspection*) untuk mengkorelasikan seluruh hyperlink di dalam email langsung ke model deteksi URL.
